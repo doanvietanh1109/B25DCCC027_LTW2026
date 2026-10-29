@@ -1,34 +1,38 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TIME_PER_QUESTION } from '../data';
-import { calcPrize } from '../utils';
+import { LETTERS, TIME_PER_QUESTION } from '../data';
+import { calcPrize, generateAudienceVotes } from '../utils';
 import QuestionCard from '../components/QuestionCard';
 import Timer from '../components/Timer';
 import MoneyLadder from '../components/MoneyLadder';
+import Lifelines from '../components/Lifelines';
+import AudienceChart from '../components/AudienceChart';
 
-const Play = ({ questions, playerName }) => {
+const Play = ({ questions, playerName, onFinish }) => {
   const navigate = useNavigate();
   const [questionIndex, setQuestionIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(TIME_PER_QUESTION);
   const [selected, setSelected] = useState(null);
   const [status, setStatus] = useState('answering'); // answering → locked → revealed
+  const [hiddenIndexes, setHiddenIndexes] = useState([]);
+  const [audience, setAudience] = useState(null);
+  const [used, setUsed] = useState({ fifty: false, audience: false, quit: false });
   const question = questions[questionIndex];
 
   const finish = useCallback((reason, correctCount) => {
     const prize = calcPrize(correctCount, reason);
-    navigate('/result', {
-      replace: true,
-      state: { name: playerName, prize, correctCount, reason },
-    });
-  }, [navigate, playerName]);
+    const result = { name: playerName, prize, correctCount, reason };
+    onFinish(result);
+    navigate('/result', { replace: true, state: result });
+  }, [navigate, playerName, onFinish]);
 
-  const handleAnswer = (index) => {
-    if (status !== 'answering') return;
+  const handleAnswer = useCallback((index) => {
+    if (status !== 'answering' || hiddenIndexes.includes(index)) return;
     setSelected(index);
     setStatus('locked');
-  };
+  }, [status, hiddenIndexes]);
 
-  // Đồng hồ hoạt động chỉ khi còn được chọn đáp án.
+  // Đồng hồ chỉ hoạt động trong giai đoạn chọn đáp án.
   useEffect(() => {
     if (status !== 'answering' || !question) return;
     const interval = setInterval(() => {
@@ -43,7 +47,7 @@ const Play = ({ questions, playerName }) => {
     }
   }, [status, timeLeft, questionIndex, finish]);
 
-  // Đợi 1 giây để hiện kết quả, rồi đợi 2 giây để chuyển câu/kết thúc.
+  // Mỗi trạng thái hẹn giờ riêng và đều dọn timer khi đổi trạng thái / rời trang.
   useEffect(() => {
     if (!question) return;
     if (status === 'locked') {
@@ -59,6 +63,8 @@ const Play = ({ questions, playerName }) => {
             setQuestionIndex((previous) => previous + 1);
             setTimeLeft(TIME_PER_QUESTION);
             setSelected(null);
+            setHiddenIndexes([]);
+            setAudience(null);
             setStatus('answering');
           }
         } else {
@@ -68,6 +74,48 @@ const Play = ({ questions, playerName }) => {
       return () => clearTimeout(timeout);
     }
   }, [status, selected, question, questionIndex, questions.length, finish]);
+
+  const handleFifty = () => {
+    if (status !== 'answering' || used.fifty || !question) return;
+    const wrongOptions = [0, 1, 2, 3].filter((index) => index !== question.answer);
+    // Fisher-Yates: chọn ngẫu nhiên 2/3 đáp án sai.
+    for (let i = wrongOptions.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [wrongOptions[i], wrongOptions[j]] = [wrongOptions[j], wrongOptions[i]];
+    }
+    const hidden = wrongOptions.slice(0, 2);
+    setHiddenIndexes(hidden);
+    if (audience) setAudience(generateAudienceVotes(question.answer, hidden));
+    setUsed((previous) => ({ ...previous, fifty: true }));
+  };
+
+  const handleAudience = () => {
+    if (status !== 'answering' || used.audience || !question) return;
+    setAudience(generateAudienceVotes(question.answer, hiddenIndexes));
+    setUsed((previous) => ({ ...previous, audience: true }));
+  };
+
+  const handleQuit = () => {
+    if (status !== 'answering' || used.quit) return;
+    setUsed((previous) => ({ ...previous, quit: true }));
+    finish('quit', questionIndex);
+  };
+
+  useEffect(() => {
+    const handleKey = (event) => {
+      if (event.altKey || event.ctrlKey || event.metaKey || event.repeat) return;
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target.tagName)) return;
+      const index = LETTERS.indexOf(event.key.toUpperCase());
+      if (index !== -1) handleAnswer(index);
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [handleAnswer]);
+
+  useEffect(() => {
+    document.title = `Câu ${questionIndex + 1}/15 – ${playerName}`;
+    return () => { document.title = 'Ai là triệu phú'; };
+  }, [questionIndex, playerName]);
 
   if (!question) return <p className="notice">Không có câu hỏi để chơi.</p>;
 
@@ -85,7 +133,17 @@ const Play = ({ questions, playerName }) => {
           selected={selected}
           status={status}
           onAnswer={handleAnswer}
+          hiddenIndexes={hiddenIndexes}
         />
+        <Lifelines
+          used={used}
+          disabled={status !== 'answering'}
+          onFifty={handleFifty}
+          onAudience={handleAudience}
+          onQuit={handleQuit}
+        />
+        {audience && <AudienceChart percentages={audience} />}
+        <p className="keyboard-hint">Mẹo: bấm phím A, B, C, D để chọn đáp án.</p>
       </div>
       <MoneyLadder currentQuestion={questionIndex + 1} />
     </div>
