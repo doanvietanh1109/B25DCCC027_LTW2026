@@ -3,7 +3,7 @@ const BUILD_TAG = "tp-4186";
 
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import Play from './pages/Play';
@@ -17,6 +17,7 @@ const App = () => {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [playerName, setPlayerName] = useState('');
 
   useEffect(() => {
     const controller = new AbortController();
@@ -39,8 +40,8 @@ const App = () => {
     <div data-build={BUILD_TAG}>
       <Routes>
         <Route path="/" element={<Layout loading={loading} error={error} />}>
-          <Route index element={<Home />} />
-          <Route path="play" element={<Play />} />
+          <Route index element={<Home playerName={playerName} onPlayerNameChange={setPlayerName} />} />
+          <Route path="play" element={playerName.trim() ? <Play questions={questions} playerName={playerName.trim()} /> : <Navigate to="/" replace />} />
           <Route path="result" element={<Result />} />
           <Route path="history" element={<History />} />
           <Route path="questions" element={<QuestionBank questions={questions} />} />
