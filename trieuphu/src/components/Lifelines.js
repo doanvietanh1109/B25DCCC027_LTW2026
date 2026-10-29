@@ -1,4 +1,4 @@
-const Lifelines = ({ used, disabled, onFifty, onAudience, onQuit }) => (
+const Lifelines = ({ used, disabled, onFifty, onAudience, onPhone, onQuit }) => (
   <section className="lifelines" aria-label="Các quyền trợ giúp">
     <h3>Quyền trợ giúp</h3>
     <div className="lifeline-buttons">
@@ -7,6 +7,9 @@ const Lifelines = ({ used, disabled, onFifty, onAudience, onQuit }) => (
       </button>
       <button type="button" className="button secondary" disabled={disabled || used.audience} onClick={onAudience}>
         Hỏi khán giả {used.audience ? '✓' : ''}
+      </button>
+      <button type="button" className="button secondary" disabled={disabled || used.phone} onClick={onPhone}>
+        Gọi điện cho người thân {used.phone ? '✓' : ''}
       </button>
       <button type="button" className="button danger" disabled={disabled || used.quit} onClick={onQuit}>
         Dừng cuộc chơi

@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LETTERS, TIME_PER_QUESTION } from '../data';
-import { calcPrize, generateAudienceVotes } from '../utils';
+import { calcPrize, createGameQuestions, generateAudienceVotes, generatePhoneHint, shuffleArray } from '../utils';
 import QuestionCard from '../components/QuestionCard';
 import Timer from '../components/Timer';
 import MoneyLadder from '../components/MoneyLadder';
@@ -10,16 +10,28 @@ import AudienceChart from '../components/AudienceChart';
 
 const Play = ({ questions, playerName, onFinish }) => {
   const navigate = useNavigate();
+  // Khởi tạo MỘT LẦN cho cả ván: không tráo lại khi state render, không sửa questions từ App.
+  const [gameQuestions] = useState(() => createGameQuestions(questions));
   const [questionIndex, setQuestionIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(TIME_PER_QUESTION);
   const [selected, setSelected] = useState(null);
-  const [status, setStatus] = useState('answering'); // answering → locked → revealed
+  const [status, setStatus] = useState('answering'); // answering -> locked -> revealed
   const [hiddenIndexes, setHiddenIndexes] = useState([]);
   const [audience, setAudience] = useState(null);
-  const [used, setUsed] = useState({ fifty: false, audience: false, quit: false });
-  const question = questions[questionIndex];
+  const [used, setUsed] = useState({ fifty: false, audience: false, phone: false, quit: false });
+  const [phoneState, setPhoneState] = useState('idle'); // idle -> calling -> ready
+  const [phoneHint, setPhoneHint] = useState(null);
+  const hiddenIndexesRef = useRef(hiddenIndexes);
+  const finishedRef = useRef(false);
+  const question = gameQuestions[questionIndex];
+
+  useEffect(() => {
+    hiddenIndexesRef.current = hiddenIndexes;
+  }, [hiddenIndexes]);
 
   const finish = useCallback((reason, correctCount) => {
+    if (finishedRef.current) return;
+    finishedRef.current = true; // Không lưu trùng nếu có 2 sự kiện kết thúc gần nhau.
     const prize = calcPrize(correctCount, reason);
     const result = { name: playerName, prize, correctCount, reason };
     onFinish(result);
@@ -32,7 +44,6 @@ const Play = ({ questions, playerName, onFinish }) => {
     setStatus('locked');
   }, [status, hiddenIndexes]);
 
-  // Đồng hồ chỉ hoạt động trong giai đoạn chọn đáp án.
   useEffect(() => {
     if (status !== 'answering' || !question) return;
     const interval = setInterval(() => {
@@ -42,12 +53,10 @@ const Play = ({ questions, playerName, onFinish }) => {
   }, [status, questionIndex, question]);
 
   useEffect(() => {
-    if (status === 'answering' && timeLeft === 0) {
-      finish('timeout', questionIndex);
-    }
+    if (status === 'answering' && timeLeft === 0) finish('timeout', questionIndex);
   }, [status, timeLeft, questionIndex, finish]);
 
-  // Mỗi trạng thái hẹn giờ riêng và đều dọn timer khi đổi trạng thái / rời trang.
+  // Chốt cam 1 giây; lộ kết quả thêm 2 giây; cleanup khi rời trang.
   useEffect(() => {
     if (!question) return;
     if (status === 'locked') {
@@ -57,7 +66,7 @@ const Play = ({ questions, playerName, onFinish }) => {
     if (status === 'revealed') {
       const timeout = setTimeout(() => {
         if (selected === question.answer) {
-          if (questionIndex === questions.length - 1) {
+          if (questionIndex === gameQuestions.length - 1) {
             finish('win', questionIndex + 1);
           } else {
             setQuestionIndex((previous) => previous + 1);
@@ -65,27 +74,27 @@ const Play = ({ questions, playerName, onFinish }) => {
             setSelected(null);
             setHiddenIndexes([]);
             setAudience(null);
+            setPhoneState('idle');
+            setPhoneHint(null);
             setStatus('answering');
           }
-        } else {
-          finish('wrong', questionIndex);
-        }
+        } else finish('wrong', questionIndex);
       }, 2000);
       return () => clearTimeout(timeout);
     }
-  }, [status, selected, question, questionIndex, questions.length, finish]);
+  }, [status, selected, question, questionIndex, gameQuestions.length, finish]);
 
   const handleFifty = () => {
     if (status !== 'answering' || used.fifty || !question) return;
-    const wrongOptions = [0, 1, 2, 3].filter((index) => index !== question.answer);
-    // Fisher-Yates: chọn ngẫu nhiên 2/3 đáp án sai.
-    for (let i = wrongOptions.length - 1; i > 0; i -= 1) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [wrongOptions[i], wrongOptions[j]] = [wrongOptions[j], wrongOptions[i]];
-    }
+    const wrongOptions = shuffleArray([0, 1, 2, 3].filter((index) => index !== question.answer));
     const hidden = wrongOptions.slice(0, 2);
     setHiddenIndexes(hidden);
     if (audience) setAudience(generateAudienceVotes(question.answer, hidden));
+    // Không đưa gợi ý sai đã hiện của người thân vào đáp án bị ẩn.
+    if (phoneState === 'ready' && hidden.includes(phoneHint)) {
+      const visibleWrong = wrongOptions.find((index) => !hidden.includes(index));
+      setPhoneHint(visibleWrong);
+    }
     setUsed((previous) => ({ ...previous, fifty: true }));
   };
 
@@ -94,6 +103,23 @@ const Play = ({ questions, playerName, onFinish }) => {
     setAudience(generateAudienceVotes(question.answer, hiddenIndexes));
     setUsed((previous) => ({ ...previous, audience: true }));
   };
+
+  const handlePhone = () => {
+    if (status !== 'answering' || used.phone || !question) return;
+    setUsed((previous) => ({ ...previous, phone: true }));
+    setPhoneHint(null);
+    setPhoneState('calling');
+  };
+
+  useEffect(() => {
+    if (phoneState !== 'calling' || status !== 'answering' || !question) return;
+    const timeout = setTimeout(() => {
+      const hint = generatePhoneHint(question.answer, hiddenIndexesRef.current);
+      setPhoneHint(hint.index);
+      setPhoneState('ready');
+    }, 3000);
+    return () => clearTimeout(timeout);
+  }, [phoneState, status, question]);
 
   const handleQuit = () => {
     if (status !== 'answering' || used.quit) return;
@@ -117,7 +143,7 @@ const Play = ({ questions, playerName, onFinish }) => {
     return () => { document.title = 'Ai là triệu phú'; };
   }, [questionIndex, playerName]);
 
-  if (!question) return <p className="notice">Không có câu hỏi để chơi.</p>;
+  if (!question) return <p className="notice error">Ngân hàng phải có ít nhất 5 câu hỏi ở mỗi mức độ để bắt đầu.</p>;
 
   return (
     <div className="play-layout">
@@ -129,7 +155,7 @@ const Play = ({ questions, playerName, onFinish }) => {
         <QuestionCard
           question={question}
           questionNumber={questionIndex + 1}
-          total={questions.length}
+          total={gameQuestions.length}
           selected={selected}
           status={status}
           onAnswer={handleAnswer}
@@ -140,8 +166,17 @@ const Play = ({ questions, playerName, onFinish }) => {
           disabled={status !== 'answering'}
           onFifty={handleFifty}
           onAudience={handleAudience}
+          onPhone={handlePhone}
           onQuit={handleQuit}
         />
+        {phoneState === 'calling' && status === 'answering' && (
+          <section className="phone-panel" role="status">Đang kết nối với người thân... Vui lòng chờ 3 giây.</section>
+        )}
+        {phoneState === 'ready' && phoneHint !== null && (
+          <section className="phone-panel" role="status">
+            Người thân gợi ý: <strong>{LETTERS[phoneHint]}</strong>. Đây chỉ là gợi ý, không đảm bảo chính xác.
+          </section>
+        )}
         {audience && <AudienceChart percentages={audience} />}
         <p className="keyboard-hint">Mẹo: bấm phím A, B, C, D để chọn đáp án.</p>
       </div>

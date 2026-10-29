@@ -1,54 +1,362 @@
 [
-  { "id": 1, "level": 1,
+  {
+    "id": 1,
+    "level": 1,
     "question": "Thẻ HTML nào dùng để tạo một liên kết (hyperlink)?",
-    "options": ["<link>", "<a>", "<href>", "<nav>"], "answer": 1 },
-  { "id": 2, "level": 1,
+    "options": [
+      "<link>",
+      "<a>",
+      "<href>",
+      "<nav>"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 2,
+    "level": 1,
     "question": "Selector CSS nào chọn phần tử có id=\"header\"?",
-    "options": [".header", "header", "#header", "*header"], "answer": 2 },
-  { "id": 3, "level": 1,
-    "question": "Thẻ HTML nào tạo danh sách có đánh số thứ tự?", "options": [
-    "<ol>", "<ul>", "<li>", "<dl>"], "answer": 0 },
-  { "id": 4, "level": 1,
-    "question": "Thuộc tính CSS nào dùng để đổi màu chữ?", "options": [
-    "font-color", "text-color", "background-color", "color"], "answer": 3 },
-  { "id": 5, "level": 1,
+    "options": [
+      ".header",
+      "header",
+      "#header",
+      "*header"
+    ],
+    "answer": 2
+  },
+  {
+    "id": 3,
+    "level": 1,
+    "question": "Thẻ HTML nào tạo danh sách có đánh số thứ tự?",
+    "options": [
+      "<ol>",
+      "<ul>",
+      "<li>",
+      "<dl>"
+    ],
+    "answer": 0
+  },
+  {
+    "id": 4,
+    "level": 1,
+    "question": "Thuộc tính CSS nào dùng để đổi màu chữ?",
+    "options": [
+      "font-color",
+      "text-color",
+      "background-color",
+      "color"
+    ],
+    "answer": 3
+  },
+  {
+    "id": 5,
+    "level": 1,
     "question": "Trong React, dữ liệu truyền từ component cha xuống component con gọi là gì?",
-    "options": ["state", "props", "ref", "key"], "answer": 1 },
-  { "id": 6, "level": 2,
+    "options": [
+      "state",
+      "props",
+      "ref",
+      "key"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 6,
+    "level": 2,
     "question": "Từ khóa ES6 nào khai báo biến không thể gán lại giá trị?",
-    "options": ["var", "let", "const", "static"], "answer": 2 },
-  { "id": 7, "level": 2,
-    "question": "[1, 2, 3].map(x => x * 2) trả về kết quả nào?", "options": [
-    "[2, 4, 6]", "[1, 2, 3]", "12", "undefined"], "answer": 0 },
-  { "id": 8, "level": 2,
+    "options": [
+      "var",
+      "let",
+      "const",
+      "static"
+    ],
+    "answer": 2
+  },
+  {
+    "id": 7,
+    "level": 2,
+    "question": "[1, 2, 3].map(x => x * 2) trả về kết quả nào?",
+    "options": [
+      "[2, 4, 6]",
+      "[1, 2, 3]",
+      "12",
+      "undefined"
+    ],
+    "answer": 0
+  },
+  {
+    "id": 8,
+    "level": 2,
     "question": "Hook nào dùng để khai báo state trong function component?",
-    "options": ["useEffect", "useParams", "useNavigate", "useState"],
-    "answer": 3 },
-  { "id": 9, "level": 2,
-    "question": "Template literal `${1 + 1}` cho ra chuỗi nào?", "options": [
-    "\"1 + 1\"", "\"2\"", "\"11\"", "\"${2}\""], "answer": 1 },
-  { "id": 10, "level": 2,
-    "question": "useEffect(fn, []) chạy hàm fn khi nào?", "options": [
-    "Sau mỗi lần render", "Chỉ khi component bị gỡ",
-    "Một lần, sau lần render đầu tiên", "Không bao giờ chạy"], "answer": 2 },
-  { "id": 11, "level": 3,
+    "options": [
+      "useEffect",
+      "useParams",
+      "useNavigate",
+      "useState"
+    ],
+    "answer": 3
+  },
+  {
+    "id": 9,
+    "level": 2,
+    "question": "Template literal `${1 + 1}` cho ra chuỗi nào?",
+    "options": [
+      "\"1 + 1\"",
+      "\"2\"",
+      "\"11\"",
+      "\"${2}\""
+    ],
+    "answer": 1
+  },
+  {
+    "id": 10,
+    "level": 2,
+    "question": "useEffect(fn, []) chạy hàm fn khi nào?",
+    "options": [
+      "Sau mỗi lần render",
+      "Chỉ khi component bị gỡ",
+      "Một lần, sau lần render đầu tiên",
+      "Không bao giờ chạy"
+    ],
+    "answer": 2
+  },
+  {
+    "id": 11,
+    "level": 3,
     "question": "Trong nested route, component nào là chỗ hiển thị route con?",
-    "options": ["<Outlet />", "<Route />", "<Link />", "<Routes />"],
-    "answer": 0 },
-  { "id": 12, "level": 3,
+    "options": [
+      "<Outlet />",
+      "<Route />",
+      "<Link />",
+      "<Routes />"
+    ],
+    "answer": 0
+  },
+  {
+    "id": 12,
+    "level": 3,
     "question": "Hook nào đọc giá trị :id trên URL /courses/:id?",
-    "options": ["useLocation", "useNavigate", "useParams", "useState"],
-    "answer": 2 },
-  { "id": 13, "level": 3, "question": "Gọi navigate(-1) có tác dụng gì?",
-    "options": ["Tải lại trang", "Về trang chủ", "Xóa lịch sử duyệt web",
-    "Quay lại trang trước đó"], "answer": 3 },
-  { "id": 14, "level": 3,
+    "options": [
+      "useLocation",
+      "useNavigate",
+      "useParams",
+      "useState"
+    ],
+    "answer": 2
+  },
+  {
+    "id": 13,
+    "level": 3,
+    "question": "Gọi navigate(-1) có tác dụng gì?",
+    "options": [
+      "Tải lại trang",
+      "Về trang chủ",
+      "Xóa lịch sử duyệt web",
+      "Quay lại trang trước đó"
+    ],
+    "answer": 3
+  },
+  {
+    "id": 14,
+    "level": 3,
     "question": "Hàm cleanup (return) trong useEffect thường dùng để làm gì?",
-    "options": ["Khởi tạo state ban đầu",
-    "Hủy timer, gỡ sự kiện trước khi component bị gỡ", "Gọi API lần đầu",
-    "Bắt component render lại"], "answer": 1 },
-  { "id": 15, "level": 3,
+    "options": [
+      "Khởi tạo state ban đầu",
+      "Hủy timer, gỡ sự kiện trước khi component bị gỡ",
+      "Gọi API lần đầu",
+      "Bắt component render lại"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 15,
+    "level": 3,
     "question": "const { a, ...rest } = { a: 1, b: 2, c: 3 }; rest có giá trị nào?",
-    "options": ["{ a: 1 }", "[2, 3]", "{ b: 2, c: 3 }", "undefined"],
-    "answer": 2 }
+    "options": [
+      "{ a: 1 }",
+      "[2, 3]",
+      "{ b: 2, c: 3 }",
+      "undefined"
+    ],
+    "answer": 2
+  },
+  {
+    "id": 16,
+    "level": 1,
+    "question": "Thẻ HTML nào dùng để hiển thị một hình ảnh?",
+    "options": [
+      "<picture>",
+      "<img>",
+      "<image>",
+      "<figure>"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 17,
+    "level": 1,
+    "question": "Thuộc tính nào cung cấp văn bản thay thế cho hình ảnh HTML?",
+    "options": [
+      "title",
+      "src",
+      "alt",
+      "href"
+    ],
+    "answer": 2
+  },
+  {
+    "id": 18,
+    "level": 1,
+    "question": "Thuộc tính CSS nào tạo khoảng cách bên ngoài đường viền phần tử?",
+    "options": [
+      "padding",
+      "margin",
+      "border-spacing",
+      "line-height"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 19,
+    "level": 1,
+    "question": "Giá trị CSS nào dùng để bật Flexbox trên một phần tử?",
+    "options": [
+      "display: grid",
+      "position: flex",
+      "display: flex",
+      "flex: block"
+    ],
+    "answer": 2
+  },
+  {
+    "id": 20,
+    "level": 1,
+    "question": "Trong JSX, thuộc tính nào dùng để gán lớp CSS cho phần tử?",
+    "options": [
+      "className",
+      "cssClass",
+      "class",
+      "styleName"
+    ],
+    "answer": 0
+  },
+  {
+    "id": 21,
+    "level": 2,
+    "question": "Kết quả của [...[1, 2], 3] là gì?",
+    "options": [
+      "[1, 2, 3]",
+      "[[1, 2], 3]",
+      "[3, 1, 2]",
+      "[1, 2]"
+    ],
+    "answer": 0
+  },
+  {
+    "id": 22,
+    "level": 2,
+    "question": "[1, 2, 3, 4].filter(x => x % 2 === 0) trả về gì?",
+    "options": [
+      "[1, 3]",
+      "[2, 4]",
+      "[true, false, true, false]",
+      "2"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 23,
+    "level": 2,
+    "question": "useEffect(fn, [count]) thường chạy fn khi nào?",
+    "options": [
+      "Chỉ khi component bị gỡ",
+      "Sau mọi sự kiện click",
+      "Sau lần render đầu và khi count thay đổi",
+      "Chỉ một lần duy nhất"
+    ],
+    "answer": 2
+  },
+  {
+    "id": 24,
+    "level": 2,
+    "question": "JSON.stringify({ a: 1 }) trả về gì?",
+    "options": [
+      "{ a: 1 }",
+      "{\"a\":1} (chuỗi JSON)",
+      "[\"a\", 1]",
+      "undefined"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 25,
+    "level": 2,
+    "question": "Array.isArray([]) trả về giá trị nào?",
+    "options": [
+      "false",
+      "undefined",
+      "0",
+      "true"
+    ],
+    "answer": 3
+  },
+  {
+    "id": 26,
+    "level": 3,
+    "question": "Trong React, công cụ nào thường dùng để ghi nhớ kết quả phép tính qua các lần render?",
+    "options": [
+      "useRef",
+      "useMemo",
+      "useContext",
+      "useId"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 27,
+    "level": 3,
+    "question": "Vì sao nên dùng key ổn định khi render danh sách trong React?",
+    "options": [
+      "Để React xác định phần tử qua các lần render",
+      "Để thay thế props",
+      "Để gọi API tự động",
+      "Để vô hiệu hóa render"
+    ],
+    "answer": 0
+  },
+  {
+    "id": 28,
+    "level": 3,
+    "question": "navigate(\"/result\", { replace: true }) có tác dụng gì?",
+    "options": [
+      "Xóa toàn bộ localStorage",
+      "Mở tab mới",
+      "Thay thế mục lịch sử hiện tại bằng /result",
+      "Tải lại trình duyệt"
+    ],
+    "answer": 2
+  },
+  {
+    "id": 29,
+    "level": 3,
+    "question": "Trong axios hỗ trợ AbortController, controller.abort() dùng để làm gì?",
+    "options": [
+      "Hủy yêu cầu đang chờ nhận phản hồi",
+      "Xóa tất cả dữ liệu server",
+      "Gửi lại request",
+      "Đặt lại state React"
+    ],
+    "answer": 0
+  },
+  {
+    "id": 30,
+    "level": 3,
+    "question": "Câu lệnh nào sau đây có thể thay đổi thứ tự của mảng gốc?",
+    "options": [
+      "array.filter(fn)",
+      "array.map(fn)",
+      "array.slice()",
+      "array.sort(fn)"
+    ],
+    "answer": 3
+  }
 ]
