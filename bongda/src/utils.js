@@ -29,3 +29,17 @@ export const calcMatchStats = (matches) => {
   stats.average = stats.count ? Math.round((stats.goals / stats.count) * 100) / 100 : 0;
   return stats;
 };
+
+export const calcNeeded = (standings, teamId, target, remaining) => {
+  const team = standings.find((row) => row.id === Number(teamId));
+  const targetNumber = Number(target);
+  const remainingNumber = Number(remaining);
+  if (!team || target === '' || !Number.isInteger(targetNumber) || targetNumber < 0 || remaining === '' || !Number.isInteger(remainingNumber) || remainingNumber < 1) {
+    return 'Hãy chọn đội, nhập số điểm mục tiêu (từ 0) và số trận còn lại (từ 1)';
+  }
+  const need = targetNumber - team.points;
+  if (need <= 0) return 'Đội đã đạt mục tiêu';
+  if (need > 3 * remainingNumber) return 'Không thể đạt mục tiêu này';
+  const wins = Math.max(0, Math.ceil((need - remainingNumber) / 2));
+  return `Cần thêm ${need} điểm ở ${remainingNumber} trận còn lại, tối thiểu ${wins} trận thắng`;
+};
